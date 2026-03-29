@@ -21,12 +21,11 @@
 <body>
     <canvas id="canvas" width="400" height="700"></canvas>
 
-    <!-- Username -->
+    <!-- Username (forced first time) -->
     <div id="usernameScreen" class="menu" style="display:none;">
         <h2 style="color:#ff00cc;">ENTER YOUR NAME</h2>
         <input id="usernameInput" type="text" placeholder="Sporeholder420" maxlength="20">
         <button onclick="saveUsernameAndContinue()">CONTINUE</button>
-        <button onclick="backToTitle()" style="background:#555;">BACK</button>
     </div>
 
     <!-- Main Menu -->
@@ -82,6 +81,7 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
+        // ALL VARIABLES DECLARED FIRST
         let gameState = 'menu';
         let gameRunning = false;
         let gameTime = 0;
@@ -145,20 +145,6 @@
             ctx.shadowBlur = 0;
         }
 
-        function generatePlatforms() {
-            platforms = [];
-            for (let i = 0; i < 9; i++) {
-                const springChance = Math.min(0.13, 0.06 + score / 16000);
-                platforms.push({ x: Math.random() * (canvas.width - 75) + 15, y: i * 74 + 110, width: 56, height: 16, spring: Math.random() < springChance });
-            }
-        }
-
-        function createParticles(x, y, count, color) {
-            for (let i = 0; i < count; i++) {
-                particles.push({ x: x + Math.random()*20-10, y, vx: Math.random()*6-3, vy: Math.random()*6-7, life: 32, color });
-            }
-        }
-
         function drawPlayer() {
             ctx.save();
             const cx = player.x + player.width/2;
@@ -167,35 +153,28 @@
             ctx.translate(cx,cy); ctx.rotate(tilt);
 
             ctx.shadowBlur = magnetTime > 0 ? 38 : 15; ctx.shadowColor = magnetTime > 0 ? '#00ffff' : '#8b00ff';
-            ctx.fillStyle = '#6B2F9E'; ctx.fillRect(-22,8,44,32);
+            ctx.fillStyle = '#6B2F9E'; ctx.fillRect(-22,12,44,32);
 
             ctx.shadowBlur = 10; ctx.shadowColor = '#00ff88';
-            ctx.fillStyle = '#00C76A'; ctx.fillRect(-18,-8,36,22);
+            ctx.fillStyle = '#00A8FF';
+            ctx.beginPath(); ctx.ellipse(0,-18,26,14,0,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath(); ctx.ellipse(-11,-22,4,4,0,0,Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(9,-21,3.5,3.5,0,0,Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(-4,-26,3,3,0,0,Math.PI*2); ctx.fill();
 
             ctx.fillStyle = '#00C76A';
-            ctx.beginPath(); ctx.ellipse(0,-18,21,19,0,0,Math.PI*2); ctx.fill();
-
-            ctx.fillStyle = '#ffffff';
-            ctx.beginPath(); ctx.ellipse(-9,-22,7,9,0.15,0,Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.ellipse(9,-22,7,9,-0.15,0,Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(0,-8,18,14,0,0,Math.PI*2); ctx.fill();
             ctx.fillStyle = '#111';
-            ctx.beginPath(); ctx.ellipse(-9,-22,3.2,4.2,0,0,Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.ellipse(9,-22,3.2,4.2,0,0,Math.PI*2); ctx.fill();
-
-            ctx.shadowBlur = magnetTime > 0 ? 42 : 20; ctx.shadowColor = magnetTime > 0 ? '#00ffff' : '#00aaff';
-            ctx.fillStyle = selectedCapColor;
-            ctx.beginPath(); ctx.ellipse(0,-33,26,14,0,0,Math.PI*2); ctx.fill();
-
-            ctx.fillStyle = '#ffffff'; ctx.shadowBlur = 3;
-            ctx.beginPath(); ctx.arc(-11,-37,4.2,0,Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(10,-38,3.8,0,Math.PI*2); ctx.fill();
-            ctx.beginPath(); ctx.arc(-4,-29,3.1,0,Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(-7,-10,3.5,5,0.2,0,Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(7,-10,3.5,5,-0.2,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#fff'; ctx.fillRect(-10,-6,20,3);
 
             ctx.shadowBlur = 25; ctx.shadowColor = '#ff00ff';
             ctx.fillStyle = '#3a0088';
-            ctx.beginPath(); ctx.moveTo(-8,-46); ctx.lineTo(8,-46); ctx.lineTo(0,-34); ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(-8,-38); ctx.lineTo(8,-38); ctx.lineTo(0,-27); ctx.closePath(); ctx.fill();
             ctx.fillStyle = '#ff00ff';
-            ctx.beginPath(); ctx.arc(0,-41,3.8 + Math.sin(gameTime*0.25)*0.6,0,Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(0,-33,4.2 + Math.sin(gameTime*0.3)*0.7,0,Math.PI*2); ctx.fill();
 
             ctx.restore();
         }
@@ -466,11 +445,6 @@
             backToMainMenu();
         }
 
-        function backToTitle() {
-            document.getElementById('usernameScreen').style.display = 'none';
-            document.getElementById('mainMenu').style.display = 'block';
-        }
-
         function pauseGame() {
             gameRunning = false;
             document.getElementById('pauseMenu').style.display = 'block';
@@ -493,6 +467,7 @@
             showLeaderboard();
         }
 
+        // Controls
         canvas.addEventListener('touchstart', e => {
             if (gameState !== 'playing') return;
             const rect = canvas.getBoundingClientRect();
@@ -514,6 +489,12 @@
         window.addEventListener('keydown', e => keys[e.key] = true);
         window.addEventListener('keyup', e => keys[e.key] = false);
 
+        // Init
+        if (!username) {
+            document.getElementById('usernameScreen').style.display = 'block';
+        } else {
+            document.getElementById('mainMenu').style.display = 'block';
+        }
         document.getElementById('menuHigh').textContent = highScore;
         gameLoop();
     </script>
